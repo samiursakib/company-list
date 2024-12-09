@@ -20,7 +20,7 @@ export default function Home() {
           onClick={toggleSidebar}
         ></div>
       )}
-      <Main toggleSidebar={toggleSidebar} />
+      <Main isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
     </div>
   );
 }
