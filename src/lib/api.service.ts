@@ -49,7 +49,6 @@ export const postCompanyList = async (payload: any) => {
       throw new Error("Network response was not ok");
     }
     const data = await response.json();
-    console.log(data);
     return data;
   } catch (err) {
     console.error(err);

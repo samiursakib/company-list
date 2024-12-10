@@ -22,6 +22,7 @@ import { getCompanyList, postCompanyList } from "@/lib/api.service";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -37,6 +38,13 @@ import {
 import Image from "next/image";
 import { MdOutlineModeEdit, MdOutlineDelete, MdClearAll } from "react-icons/md";
 import { IoIosSearch } from "react-icons/io";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from "./ui/pagination";
 
 const formSchema = z.object({
   companyName: z.string().nullable(),
@@ -65,19 +73,20 @@ export default function Main({
       active: "0",
     },
   });
-
-  console.log(form.watch());
+  const [pageSize, setPageSize] = useState<string>("15");
+  const [page, setPage] = useState<number>(1);
 
   useEffect(() => {
     const fetchOptions = async () => {
       const options = await getCompanyList();
       setOptions(options);
+      const list = await postCompanyList(options);
+      setList(list.data.data);
     };
     fetchOptions();
   }, []);
 
   const onSubmit = async (formData: FormData) => {
-    console.log(formData);
     const list = await postCompanyList(formData);
     setList(list.data.data);
   };
@@ -94,7 +103,13 @@ export default function Main({
     setList(list.data.data);
   };
 
-  console.log(list);
+  useEffect(() => {
+    const refetchData = async () => {
+      const list = await postCompanyList({ page, pageSize: Number(pageSize) });
+      setList(list.data.data);
+    };
+    refetchData();
+  }, [page, pageSize]);
 
   return (
     <div className="flex-1 md:ml-64">
@@ -133,11 +148,8 @@ export default function Main({
         </div>
         <Card className="p-4 rounded">
           <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit, (err) => console.log(err))}
-              className="space-y-8"
-            >
-              <div className="grid grid-cols-4 gap-4">
+            <form className="space-y-8">
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                 <div className="">
                   <FormField
                     control={form.control}
@@ -240,7 +252,7 @@ export default function Main({
                   />
                 </div>
               </div>
-              <div className="flex gap-2 justify-center">
+              <div className="flex gap-2 justify-center pb-8">
                 <Button className="pl-3 bg-[#007bff] hover:bg-[#0056b3]">
                   <IoIosSearch />
                   <span>Search</span>
@@ -402,6 +414,45 @@ export default function Main({
               ))}
             </TableBody>
           </Table>
+        </Card>
+        <Card className="mt-4 p-4 flex justify-between items-center">
+          <div className="flex gap-2 items-center">
+            <span>Rows per page</span>
+            <Select value={pageSize} onValueChange={setPageSize}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select a fruit" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {options.data?.availablePageSizes.map((size: string) => (
+                    <SelectItem key={size} value={size}>
+                      {size}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={() => {
+                      setPage((prev) => prev - 1);
+                    }}
+                  />
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={() => {
+                      setPage((prev) => prev + 1);
+                    }}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
         </Card>
       </div>
     </div>

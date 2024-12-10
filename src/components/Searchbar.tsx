@@ -13,7 +13,7 @@ export default function SearchBar({
       </div>
       <input
         type="text"
-        placeholder={isSidebarOpen ? "Search..." : "Search your page..."}
+        placeholder={"Search..."}
         className={cn(["search-input w-20", { "w-[400px]": isSidebarOpen }])}
       />
       <div className="search-shortcut">⌘K</div>
